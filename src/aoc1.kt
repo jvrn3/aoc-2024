@@ -8,6 +8,11 @@ fun main(){
     val listOfPair = pairSmallest(getListOfPairs(file));
 
     println("The sum is " + sumDistance(listOfPair))
+    print("The similarity score is " + getSimilarityScore(listOfPair.map{it.first}, listOfPair.map { it.second }))
+}
+// part 2
+fun getSimilarityScore(first: List<Int>, second: List<Int>): Int{
+    return first.sumOf{element -> element * second.filter{ it == element}.size}
 }
 
 fun getListOfPairs (file: File): List<Pair<Int,Int>>{
