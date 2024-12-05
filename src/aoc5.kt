@@ -4,14 +4,33 @@ fun main() {
     val file = File("input5.txt")
     val orderingRules = getOrderingRules(file)
     val pages = getPagesToUpdate(file)
-    val result = pages.filter { isInRightOrder(orderingRules, it) }.sumOf { getMiddleElement(it) }
-    println(result)
+    val part1 = pages.filter { isInRightOrder(orderingRules, it) }.sumOf { getMiddleElement(it) }
+    val part2 = pages.filter { !isInRightOrder(orderingRules, it) }.map { putInCorrectOrder(orderingRules, it) }.sumOf { getMiddleElement(it) }
+    println("Part 1: $part1")
+    println("Part 2: $part2")
 }
 
 fun isInRightOrder(orderingRules: List<Pair<Int, Int>>, page: List<Int>): Boolean {
     val zippedValues = page.zipWithNext()
     return zippedValues.all { (a, b) -> isBefore(a to b, orderingRules) }
 }
+
+fun putInCorrectOrder(orderingRules: List<Pair<Int, Int>>, page: List<Int>): List<Int>{
+    val mutablePage = page.toMutableList()
+    while(!isInRightOrder(orderingRules, mutablePage)){
+        val zippedValues = mutablePage.zipWithNext()
+        val notOrderedPair = zippedValues.first { (a, b) -> !isBefore(a to b, orderingRules) }
+        val index = mutablePage.indexOf(notOrderedPair.first)
+        val swap = mutablePage[index]
+        mutablePage[index] = mutablePage[index + 1]
+        mutablePage[index+1] = swap
+    }
+    return mutablePage
+
+    
+    
+}
+
 
 fun getMiddleElement(list: List<Int>): Int {
     return list[list.size / 2]
