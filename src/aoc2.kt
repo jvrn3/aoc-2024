@@ -3,8 +3,16 @@ import kotlin.math.abs
 
 fun main(){
     val reports = getReports(File("./input2.txt"))
-    val validReports = reports.filter { isIncreasingOrDecreasingAndDistanceAllowed(it) }
-    println(validReports.size)
+    val validReports = reports.count { isIncreasingOrDecreasingAndDistanceAllowed(it) }
+    val validReportsPt2 = reports.count{report -> 
+         report.withIndex().any{(index, _) ->  isIncreasingOrDecreasingAndDistanceAllowed(removeIndex(report, index))}
+    }
+    println("Part 1 ${validReports}")
+    println("Part 2 ${validReportsPt2}")
+}
+
+fun removeIndex(report: List<Int>, index: Int): List<Int>{
+    return report.filterIndexed{ i, _ -> i != index }
 }
 
 fun isIncreasingOrDecreasingAndDistanceAllowed(report: List<Int>): Boolean{
