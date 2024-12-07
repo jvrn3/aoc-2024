@@ -1,9 +1,12 @@
 import java.io.File
 
+
+data class GuardState(val position: Pair<Int, Int>, val direction: Char)
+
 fun main() {
     val map = readMap(File("input6.txt"))
-    println("Part 1: ${count(map)}")
-  
+    println("Part 1: ${countSteps(map.map { it.toMutableList() }.toMutableList())}")
+    println("Part 2 (brute force without optimization: ${countLoops(map)} ")
 }
 
 fun printMap(map: List<List<Char>>){
@@ -11,8 +14,8 @@ fun printMap(map: List<List<Char>>){
     println()
 }
 
-fun readMap(file: File): MutableList<MutableList<Char>> {
-    return file.readLines().map { it.toMutableList() }.toMutableList()
+fun readMap(file: File): List<List<Char>> {
+    return file.readLines().map { it.toList() }.toList()
 }
 
 fun shouldTurnRight(map: List<List<Char>>, currentLocation: Pair<Int, Int>): Boolean {
@@ -46,24 +49,49 @@ fun getNextMovePosition(map: List<List<Char>>, currentLocation: Pair<Int, Int>):
 
 
 
-fun count(map: MutableList<MutableList<Char>>): Int{
+fun countSteps(map: MutableList<MutableList<Char>>): Int{
     val visited: MutableSet<Pair<Int, Int>> = mutableSetOf()
+    val states: MutableSet<GuardState> = mutableSetOf()
     var currentLocation = getGuardPosition(map)?: return 0
+    states.add(GuardState(currentLocation, map[currentLocation.first][currentLocation.second]))
     visited.add(currentLocation)
     while(!leavesMap(map, currentLocation)){
         if (shouldTurnRight(map, currentLocation)) {
             turnRight(map, currentLocation)
         }
+        else{
+            currentLocation = moveForward(map, currentLocation)
+            val currentState = GuardState(currentLocation, map[currentLocation.first][currentLocation.second])
 
-        currentLocation = moveForward(map, currentLocation)
-        if(currentLocation !in visited){
-            visited.add(currentLocation)
+            if(currentState in states){
+                return -1
+            }
+            states.add(currentState)
+
+            if(currentLocation !in visited){
+                visited.add(currentLocation)
+            }
+            // for debugging
+            //printMap(map)
         }
-        // for debugging
-        //printMap(map)
     }
     return visited.size
 }
+
+fun countLoops(map: List<List<Char>>): Int{
+    var count = 0
+    map.forEachIndexed{i, row -> row.forEachIndexed{j, cell -> 
+        if(cell == '.'){
+            val mutableMap = map.map { it.toMutableList() }.toMutableList()
+            mutableMap[i][j] = '#'
+            if(countSteps(mutableMap) == -1){
+                count +=1
+            }
+        }
+    }}
+    return count
+}
+
 
 fun getGuardPosition(map: List<List<Char>>): Pair<Int, Int>? {
     map.forEachIndexed { i, row ->
