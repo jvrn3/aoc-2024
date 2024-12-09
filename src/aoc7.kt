@@ -7,7 +7,9 @@ data class Equation(val result: BigInteger, val numbers: List<Int>)
 fun main() {
     val equations = getEquations(File("input7.txt"))
     val part1 = equations.filter{search(buildTree(it.numbers), it.result)}.sumOf { it.result }
+    val part2 = equations.filter{searchWithConcatenation(buildTree(it.numbers), it.result)}.sumOf { it.result }
     println("Part 1: $part1")
+    println("Part 2: $part2" )
 }
 
 fun buildTree(numbers: List<Int>): TreeNode {
@@ -23,6 +25,8 @@ fun getEquations(file: File): List<Equation> {
         Equation(result.toBigInteger(), numbers.split(" ").map { it.trim().toInt() })
     }
 }
+
+
 
 /*
          81 
@@ -44,7 +48,26 @@ fun search(tree: TreeNode, expected: BigInteger): Boolean {
         }
         return loop(node.left, sum + node.left.value.toBigInteger())
                 || loop(node.right, sum * node.right.value.toBigInteger())
-       
+
     }
+    return loop(tree, tree.value.toBigInteger())
+}
+
+
+fun searchWithConcatenation(tree: TreeNode, expected: BigInteger): Boolean {
+    fun concatValue(a: BigInteger, b: Int): BigInteger {
+        return "$a$b".toBigInteger()
+    }
+
+    fun loop(node: TreeNode, sum: BigInteger): Boolean {
+        if (node.left == null && node.right == null) {
+            return sum == expected 
+        }
+        return loop(node.left!!, concatValue(sum, node.left.value))
+                || loop(node.right!!, concatValue(sum, node.right.value)) || 
+        loop(node.left, sum + node.left.value.toBigInteger())
+                || loop(node.right, sum * node.right.value.toBigInteger())
+    }
+
     return loop(tree, tree.value.toBigInteger())
 }
