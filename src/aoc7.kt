@@ -27,7 +27,6 @@ fun getEquations(file: File): List<Equation> {
 }
 
 
-
 /*
          81 
         +/\*
